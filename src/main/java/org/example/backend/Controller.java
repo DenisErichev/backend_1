@@ -1,25 +1,33 @@
 package org.example.backend;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 @RestController
-@RequestMapping("/api")
 public class Controller {
 
-    @PostMapping("/data")
-    public String receiveData(@RequestParam String text) {
-        try (FileWriter writer = new FileWriter("data.txt", true)) {
-            writer.write(text + "\n");
+    @PostMapping("/submit1")
+    public String handleSubmit1(@RequestBody String data) {
+        try {
+            Files.write(Paths.get("data.txt"), data.getBytes(), StandardOpenOption.APPEND);
+            return "Получено и сохранено: " + data;
         } catch (IOException e) {
-            e.printStackTrace();
-            return "Ошибка чтения файла.";
+            return "Ошибка сохранения данных: " + e.getMessage();
         }
-        return "Данные сохранены в файл.";
+    }
+
+    @GetMapping("/submit2")
+    public String handleSubmit2() {
+        try {
+            String fileContent = new String(Files.readAllBytes(Paths.get("data.txt")));
+            return fileContent;
+        } catch (IOException e) {
+            return "Файл не найден";
+        }
     }
 }
